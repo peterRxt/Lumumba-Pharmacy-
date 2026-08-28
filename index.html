@@ -1,157 +1,1423 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Lumumba Pharmacy</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+    <title>XanaPlus Advert Studio – Logo / Easter Offers</title>
+    <!-- html2canvas & jsPDF -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js">
+    </script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js">
+    </script>
+    <!-- SheetJS for Excel import -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js">
+    </script>
     <style>
-        body { background: #f8f9fa; }
-        .card { border: none; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.08); }
-        .table th { background: #0d6efd; color: white; }
-        .table-totals { background: #e9ecef; font-weight: bold; }
-        #app-title { color: #0d6efd; font-weight: 600; }
-        .upload-area { border: 2px dashed #0d6efd; border-radius: 12px; padding: 2rem; text-align: center; cursor: pointer; transition: 0.3s; }
-        .upload-area:hover { background: #e9f0ff; }
-        #fileInput { display: none; }
-        .table-caption { font-size: 1.1rem; font-weight: 500; color: #0d6efd; }
+        :root {
+            --green: #0f6b3f;
+            --gold: #f4b740;
+            --border: #222;
+            --easter-pink: #ffb7c5;
+            --easter-lavender: #e6d0ff;
+            --easter-mint: #c7f0db;
+            --easter-yellow: #fff2b5;
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', 'Poppins', Arial, sans-serif;
+            background: #eef2f5;
+            margin: 0;
+            padding: 20px;
+        }
+
+        h1 {
+            text-align: center;
+            margin-bottom: 16px;
+            color: #1e3a2f;
+            font-weight: 700;
+            letter-spacing: -0.3px;
+        }
+
+        .controls {
+            max-width: 1100px;
+            margin: 0 auto 24px;
+            background: white;
+            padding: 20px 24px;
+            border-radius: 28px;
+            box-shadow: 0 12px 28px rgba(0, 0, 0, 0.08);
+            display: flex;
+            flex-wrap: wrap;
+            gap: 16px;
+            align-items: flex-end;
+        }
+
+        .control-group {
+            flex: 1 1 180px;
+            min-width: 140px;
+        }
+
+        .control-group label {
+            font-weight: 600;
+            font-size: 13px;
+            display: block;
+            margin-bottom: 6px;
+            color: #2c3e2f;
+        }
+
+        .controls input,
+        .controls textarea,
+        .controls select {
+            width: 100%;
+            padding: 10px 12px;
+            border: 1px solid #cfdfd4;
+            border-radius: 20px;
+            font-size: 14px;
+            background: #fefefe;
+            transition: 0.2s;
+        }
+
+        .controls input:focus,
+        .controls textarea:focus,
+        .controls select:focus {
+            border-color: var(--green);
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(15, 107, 63, 0.2);
+        }
+
+        .radio-switch {
+            display: flex;
+            background: #eef2f0;
+            border-radius: 40px;
+            padding: 4px;
+            gap: 6px;
+            margin-top: 4px;
+        }
+
+        .radio-switch label {
+            flex: 1;
+            text-align: center;
+            background: transparent;
+            border-radius: 30px;
+            padding: 8px 0;
+            font-weight: 600;
+            cursor: pointer;
+            transition: 0.2s;
+            margin: 0;
+            font-size: 13px;
+        }
+
+        .radio-switch input {
+            display: none;
+        }
+
+        .radio-switch input:checked+span {
+            background: var(--green);
+            color: white;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .radio-switch span {
+            display: block;
+            padding: 6px 12px;
+            border-radius: 30px;
+        }
+
+        .blur-slider {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-top: 8px;
+        }
+
+        .blur-slider input {
+            flex: 1;
+            margin: 0;
+        }
+
+        .file-upload-wrapper {
+            display: flex;
+            gap: 8px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .file-upload-wrapper input[type="file"] {
+            flex: 1;
+            padding: 8px 10px;
+            border: 1px dashed #aaa;
+            border-radius: 20px;
+            background: #fafafa;
+            font-size: 13px;
+            min-width: 160px;
+        }
+
+        .file-upload-wrapper input[type="file"]::file-selector-button {
+            background: var(--green);
+            color: white;
+            border: none;
+            padding: 6px 16px;
+            border-radius: 30px;
+            font-weight: 600;
+            cursor: pointer;
+            margin-right: 12px;
+        }
+
+        button {
+            background: var(--green);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 36px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            font-size: 14px;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+            white-space: nowrap;
+        }
+
+        button:hover {
+            transform: translateY(-2px);
+            background: #0a5332;
+            box-shadow: 0 6px 14px rgba(0, 0, 0, 0.1);
+        }
+
+        .btn-secondary {
+            background: #4a5b4e;
+        }
+        .btn-secondary:hover {
+            background: #3a4b3e;
+        }
+
+        .btn-danger {
+            background: #c0392b;
+        }
+        .btn-danger:hover {
+            background: #a93226;
+        }
+
+        .btn-orange {
+            background: #e67e22;
+        }
+        .btn-orange:hover {
+            background: #ca6f1e;
+        }
+
+        .btn-purple {
+            background: #7d3c98;
+        }
+        .btn-purple:hover {
+            background: #6c3483;
+        }
+
+        .btn-sm {
+            padding: 6px 14px;
+            font-size: 12px;
+        }
+
+        .pages-container {
+            max-width: 210mm;
+            margin: 0 auto;
+            display: flex;
+            flex-direction: column;
+            gap: 32px;
+        }
+
+        .page {
+            width: 210mm;
+            min-height: 297mm;
+            margin: 0 auto;
+            background: #fff;
+            padding: 12mm 10mm;
+            border-radius: 12px;
+            box-shadow: 0 20px 35px rgba(0, 0, 0, 0.2);
+            position: relative;
+        }
+
+        .page-number {
+            position: absolute;
+            bottom: 8mm;
+            right: 10mm;
+            font-size: 12px;
+            color: #999;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            grid-auto-rows: 85mm;
+            gap: 8mm;
+            align-items: stretch;
+            height: 100%;
+            min-height: calc(297mm - 24mm);
+        }
+
+        .grid-empty {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #aaa;
+            font-size: 18px;
+            font-weight: 500;
+            min-height: 200px;
+            grid-column: 1 / -1;
+            text-align: center;
+            padding: 40px;
+            background: #f9faf9;
+            border-radius: 28px;
+            border: 2px dashed #dde5e0;
+        }
+
+        /* ----- BASE CARD STYLES (shared) ----- */
+        .card {
+            width: 100%;
+            height: 100%;
+            position: relative;
+            border-radius: 24px;
+            overflow: hidden;
+            box-shadow: 0 12px 24px rgba(0, 0, 0, 0.15);
+            transition: all 0.2s;
+            background: #ffffff;
+            border: 1px solid rgba(0, 0, 0, 0.08);
+        }
+
+        /* Logo Mode background image & overlays (transparent watermark style) */
+        .card.logo-mode {
+            background: url('logo.jpeg') center center / contain no-repeat;
+            background-color: #fefaf0;
+        }
+
+        .card.logo-mode::before {
+            content: "";
+            position: absolute;
+            inset: 0;
+            background: rgba(255, 248, 235, 0.82);
+            z-index: 0;
+            backdrop-filter: blur(1px);
+        }
+
+        /* Easter Mode background gradients & pattern */
+        .card.easter-mode {
+            background: linear-gradient(145deg, #fff9ed 0%, #fff2e0 100%);
+            position: relative;
+        }
+
+        .card.easter-mode::before {
+            content: "🐣🥚🌸";
+            position: absolute;
+            font-size: 70px;
+            opacity: 0.12;
+            bottom: 10px;
+            right: 10px;
+            white-space: pre;
+            pointer-events: none;
+            z-index: 0;
+            font-weight: normal;
+            transform: rotate(-5deg);
+        }
+
+        .card.easter-mode::after {
+            content: "";
+            position: absolute;
+            inset: 0;
+            background: radial-gradient(circle at 20% 30%, rgba(255, 215, 150, 0.2) 0%, rgba(255, 240, 200, 0) 70%);
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        /* Shared content layer */
+        .content {
+            position: relative;
+            z-index: 3;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            backdrop-filter: blur(0px);
+            /* dynamic blur applied via JS style */
+            background: rgba(255, 255, 255, 0.75);
+            border-radius: 20px;
+            padding: 6mm 5mm;
+            transition: backdrop-filter 0.1s;
+            box-sizing: border-box;
+        }
+
+        /* Header styling */
+        .header {
+            text-align: center;
+            line-height: 1.2;
+            padding-bottom: 4px;
+            border-bottom: 3px solid var(--gold);
+            display: inline-block;
+            align-self: center;
+            width: 100%;
+            margin-bottom: 6px;
+        }
+
+        .brand {
+            font-size: 22px;
+            font-weight: 900;
+            color: var(--green);
+            letter-spacing: -0.5px;
+        }
+
+        .deal {
+            font-size: 14px;
+            font-weight: 800;
+            color: #b7410e;
+            background: rgba(244, 183, 64, 0.2);
+            display: inline-block;
+            padding: 2px 12px;
+            border-radius: 40px;
+            margin-top: 3px;
+        }
+
+        /* description area */
+        .desc {
+            flex: 1;
+            font-size: 18px;
+            font-weight: 800;
+            text-align: center;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 8px 0;
+            background: rgba(255, 255, 240, 0.8);
+            border-radius: 28px;
+            padding: 8px 5px;
+            word-break: break-word;
+        }
+
+        /* prices area */
+        .prices {
+            text-align: center;
+            background: rgba(255, 255, 245, 0.9);
+            border-radius: 24px;
+            padding: 8px 6px;
+            margin-top: auto;
+        }
+
+        .old {
+            font-size: 15px;
+            color: #6c5b4b;
+            text-decoration: line-through;
+            margin-bottom: 2px;
+        }
+
+        .new {
+            font-size: 28px;
+            font-weight: 900;
+            color: var(--green);
+            letter-spacing: -0.5px;
+        }
+
+        .save {
+            font-size: 14px;
+            font-weight: 800;
+            background: var(--gold);
+            display: inline-block;
+            padding: 4px 14px;
+            border-radius: 40px;
+            margin-top: 5px;
+            color: #2c2b26;
+        }
+
+        /* Easter specific decorative touches */
+        .easter-tag {
+            position: absolute;
+            top: 8px;
+            right: 12px;
+            font-size: 24px;
+            opacity: 0.5;
+            z-index: 2;
+            pointer-events: none;
+        }
+
+        /* Logo position classes (logo mode only) */
+        .logo-top-left {
+            background-position: 5% 8% !important;
+            background-size: 32% !important;
+        }
+        .logo-top-right {
+            background-position: 95% 8% !important;
+            background-size: 32% !important;
+        }
+        .logo-center {
+            background-position: center center !important;
+            background-size: 48% !important;
+        }
+        .logo-bottom-left {
+            background-position: 5% 92% !important;
+            background-size: 32% !important;
+        }
+        .logo-bottom-right {
+            background-position: 95% 92% !important;
+            background-size: 32% !important;
+        }
+
+        /* Easter side position */
+        .easter-side-left .content::before {
+            content: "🐰🌸 EASTER 🥚🐣";
+            position: absolute;
+            left: 8px;
+            top: 50%;
+            transform: translateY(-50%) rotate(-90deg);
+            font-size: 28px;
+            font-weight: 800;
+            color: #e67e22;
+            opacity: 0.35;
+            white-space: nowrap;
+            letter-spacing: 3px;
+            font-family: 'Segoe UI', cursive;
+            pointer-events: none;
+            z-index: 4;
+            text-shadow: 2px 2px 8px rgba(0, 0, 0, 0.1);
+            background: linear-gradient(135deg, #ffb347, #ff6b4a);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            text-stroke: 1px rgba(0, 0, 0, 0.1);
+        }
+
+        .easter-side-right .content::after {
+            content: "🐇✨ HOPPY DEALS ✨🐣";
+            position: absolute;
+            right: 8px;
+            top: 50%;
+            transform: translateY(-50%) rotate(90deg);
+            font-size: 28px;
+            font-weight: 800;
+            color: #d45a2b;
+            opacity: 0.4;
+            white-space: nowrap;
+            letter-spacing: 2px;
+            font-family: monospace;
+            pointer-events: none;
+            z-index: 4;
+            background: linear-gradient(135deg, #f9a825, #fb8c00);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+        }
+
+        .card.easter-mode .header .brand {
+            color: #c35e1e;
+            text-shadow: 0 1px 0 #ffe0a3;
+        }
+
+        /* page indicator */
+        .page-indicator {
+            text-align: center;
+            font-weight: 600;
+            color: #4a5b4e;
+            margin: 4px 0 8px;
+            font-size: 14px;
+        }
+
+        .page-actions {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+            justify-content: center;
+            margin-top: 6px;
+        }
+
+        .import-stats {
+            font-size: 13px;
+            color: #2c3e2f;
+            background: #eef5f0;
+            padding: 6px 16px;
+            border-radius: 30px;
+            display: inline-block;
+        }
+
+        @media print {
+            body {
+                background: white;
+                padding: 0;
+            }
+            .controls {
+                display: none;
+            }
+            .page-actions {
+                display: none;
+            }
+            .page-indicator {
+                display: none;
+            }
+            .page {
+                box-shadow: none;
+                border-radius: 0;
+                padding: 10mm 8mm;
+                margin: 0;
+                page-break-after: always;
+            }
+            .card {
+                break-inside: avoid;
+                page-break-inside: avoid;
+                border: 1px solid #ccc;
+            }
+            .content {
+                -webkit-print-color-adjust: exact;
+                print-color-adjust: exact;
+            }
+            .pages-container {
+                gap: 0;
+            }
+        }
+
+        @media (max-width: 800px) {
+            .page {
+                width: 100%;
+                min-height: auto;
+                padding: 8mm 6mm;
+            }
+            .grid {
+                grid-template-columns: 1fr;
+                grid-auto-rows: 70mm;
+                gap: 6mm;
+                min-height: auto;
+            }
+            .controls {
+                flex-direction: column;
+            }
+            .control-group {
+                flex: 1 1 auto;
+                width: 100%;
+            }
+            .file-upload-wrapper {
+                flex-direction: column;
+                align-items: stretch;
+            }
+            .file-upload-wrapper input[type="file"] {
+                min-width: auto;
+            }
+        }
     </style>
 </head>
 <body>
-<div class="container py-4">
-    <h1 id="app-title" class="text-center mb-4">Lumumba Pharmacy</h1>
 
-    <div class="card p-4 mb-4">
-        <div class="upload-area" onclick="document.getElementById('fileInput').click()">
-            <i class="bi bi-cloud-upload" style="font-size: 2rem; color: #0d6efd;"></i>
-            <p class="mt-2 mb-0">Click to upload Excel file (.xlsx, .xls)</p>
-            <input type="file" id="fileInput" accept=".xlsx,.xls" onchange="handleFile(event)">
+    <h1>🐣 XanaPlus Hot Deals — Logo Mode or Easter Offers 🐰</h1>
+
+    <div class="controls">
+        <!-- Manual Entry -->
+        <div class="control-group" style="min-width:200px">
+            <label>🎯 Product Description</label>
+            <textarea id="desc" rows="1" placeholder="e.g. XanaPlus Organic Greens"></textarea>
+        </div>
+        <div class="control-group">
+            <label>💰 Old Price (KES)</label>
+            <input id="oldPrice" type="number" placeholder="2500" />
+        </div>
+        <div class="control-group">
+            <label>✨ New Price (KES)</label>
+            <input id="newPrice" type="number" placeholder="1799" />
+        </div>
+
+        <div class="control-group">
+            <label>🎨 Card Style</label>
+            <div class="radio-switch" id="styleToggle">
+                <label><input type="radio" name="cardStyle" value="logo" checked /> <span>🏷️ Logo Mode</span></label>
+                <label><input type="radio" name="cardStyle" value="easter" /> <span>🐇 Easter Offers</span></label>
+            </div>
+        </div>
+
+        <div class="control-group" id="positionGroup">
+            <label>📍 Logo Position (Logo Mode)</label>
+            <select id="logoPositionSelect">
+                <option value="center">Center</option>
+                <option value="top-left">Top Left</option>
+                <option value="top-right">Top Right</option>
+                <option value="bottom-left">Bottom Left</option>
+                <option value="bottom-right">Bottom Right</option>
+            </select>
+        </div>
+
+        <div class="control-group" id="easterSideGroup" style="display:none">
+            <label>🐣 Easter Text Side</label>
+            <select id="easterSideSelect">
+                <option value="left">Left Side (vertical)</option>
+                <option value="right">Right Side (vertical)</option>
+            </select>
+        </div>
+
+        <div class="control-group">
+            <label>🌀 Background Blur Magnitude</label>
+            <div class="blur-slider">
+                <span>0px</span>
+                <input type="range" id="blurSlider" min="0" max="12" step="0.5" value="2.5" />
+                <span>12px</span>
+            </div>
+            <small style="display:block; font-size:11px;">Drag to blur card content background (stylish glass effect)</small>
+        </div>
+
+        <div class="control-group" style="flex: 0 0 auto; display: flex; gap: 8px; flex-wrap: wrap;">
+            <button id="addBtn">+ Add Advert</button>
+            <button id="clearBtn" class="btn-danger">🗑️ Clear All</button>
+        </div>
+
+        <!-- Excel Import -->
+        <div class="control-group" style="flex: 1 1 100%; border-top: 1px solid #e0e8e3; padding-top: 14px; margin-top: 4px;">
+            <label>📊 Import from Excel (.xlsx / .xls) — columns: <strong>Description</strong>, <strong>was</strong>, <strong>Now</strong></label>
+            <div class="file-upload-wrapper">
+                <input type="file" id="excelFileInput" accept=".xlsx,.xls" />
+                <button id="importExcelBtn" class="btn-orange">📥 Import & Generate Cards</button>
+                <span id="importStats" class="import-stats">0 cards loaded</span>
+            </div>
         </div>
     </div>
 
-    <div id="result" class="card p-4 d-none">
-        <div class="d-flex justify-content-between align-items-center mb-3">
-            <h5 class="mb-0">Lumumba Pharmacy Sales</h5>
-            <span id="saleDate" class="badge bg-secondary fs-6"></span>
-        </div>
-        <div class="table-responsive">
-            <table class="table table-bordered table-hover mb-0" id="summaryTable">
-                <thead>
-                    <tr>
-                        <th>Cashier name</th>
-                        <th>Total sales</th>
-                        <th>No. of customers</th>
-                        <th>Basket value</th>
-                    </tr>
-                </thead>
-                <tbody id="tableBody"></tbody>
-                <tfoot id="tableFoot"></tfoot>
-            </table>
-        </div>
+    <div class="pages-container" id="pagesContainer">
+        <!-- Pages are dynamically built here -->
     </div>
-</div>
 
-<script>
-function handleFile(e) {
-    const file = e.target.files[0];
-    if (!file) return;
+    <script>
+        // ============================================================
+        //  DOM refs
+        // ============================================================
+        const pagesContainer = document.getElementById('pagesContainer');
+        const descInput = document.getElementById('desc');
+        const oldPriceInput = document.getElementById('oldPrice');
+        const newPriceInput = document.getElementById('newPrice');
+        const logoPositionSelect = document.getElementById('logoPositionSelect');
+        const easterSideSelect = document.getElementById('easterSideSelect');
+        const styleRadios = document.querySelectorAll('input[name="cardStyle"]');
+        const positionGroup = document.getElementById('positionGroup');
+        const easterSideGroup = document.getElementById('easterSideGroup');
+        const blurSlider = document.getElementById('blurSlider');
+        const addBtn = document.getElementById('addBtn');
+        const clearBtn = document.getElementById('clearBtn');
+        const importExcelBtn = document.getElementById('importExcelBtn');
+        const excelFileInput = document.getElementById('excelFileInput');
+        const importStats = document.getElementById('importStats');
 
-    const reader = new FileReader();
-    reader.onload = function(ev) {
-        const data = new Uint8Array(ev.target.result);
-        const workbook = XLSX.read(data, { type: 'array' });
-        const sheet = workbook.Sheets[workbook.SheetNames[0]];
-        const json = XLSX.utils.sheet_to_json(sheet, { defval: '' });
+        let totalCards = 0;
+        const MAX_CARDS_PER_PAGE = 6;
 
-        // Filter for Lumumba Pharmacy
-        const filtered = json.filter(row => 
-            String(row.service_point).trim().toLowerCase() === 'lumumba pharmacy'
-        );
-
-        if (filtered.length === 0) {
-            alert('No sales found for Lumumba Pharmacy.');
-            document.getElementById('result').classList.add('d-none');
-            return;
+        // ============================================================
+        //  Helpers
+        // ============================================================
+        function getCurrentStyle() {
+            for (const r of styleRadios) {
+                if (r.checked) return r.value;
+            }
+            return 'logo';
         }
 
-        // Extract date from first row (expecting mm/dd/yy hh:mm or similar)
-        let rawDate = filtered[0].date;
-        let displayDate = '';
-        if (rawDate) {
-            // Attempt to parse as date string. Remove time part.
-            let dateOnly = rawDate;
-            if (typeof rawDate === 'string') {
-                // Remove time after a space (hh:mm or hh:mm:ss)
-                dateOnly = rawDate.split(' ')[0];
-            }
-            // Now dateOnly should be mm/dd/yy
-            const parts = dateOnly.split('/');
-            if (parts.length === 3) {
-                let month = parts[0].padStart(2,'0');
-                let day = parts[1].padStart(2,'0');
-                let year = parts[2];
-                // ensure year is 2-digit (if 4-digit, take last 2)
-                if (year.length > 2) year = year.slice(-2);
-                displayDate = `${day}-${month}-${year}`;
+        function getBlurValue() {
+            return parseFloat(blurSlider.value) || 0;
+        }
+
+        function escapeHtml(str) {
+            if (!str) return '';
+            return str.replace(/[&<>]/g, function(m) {
+                if (m === '&') return '&amp;';
+                if (m === '<') return '&lt;';
+                if (m === '>') return '&gt;';
+                return m;
+            });
+        }
+
+        function formatKES(val) {
+            return Number(val).toLocaleString();
+        }
+
+        function updateStyleControls() {
+            const style = getCurrentStyle();
+            if (style === 'logo') {
+                positionGroup.style.display = 'block';
+                easterSideGroup.style.display = 'none';
             } else {
-                displayDate = dateOnly; // fallback
+                positionGroup.style.display = 'none';
+                easterSideGroup.style.display = 'block';
             }
         }
-        document.getElementById('saleDate').textContent = displayDate ? `Date: ${displayDate}` : '';
+        styleRadios.forEach(r => r.addEventListener('change', updateStyleControls));
+        updateStyleControls();
 
-        // Aggregate by cashier (user column)
-        const cashierMap = new Map();
-        filtered.forEach(row => {
-            const cashier = (row.user || '').trim();
-            if (!cashier) return;
-            if (!cashierMap.has(cashier)) {
-                cashierMap.set(cashier, { totalSales: 0, invoices: new Set() });
+        // ============================================================
+        //  Apply blur to a card's .content
+        // ============================================================
+        function applyBlurToCard(cardEl, blurPx) {
+            const content = cardEl.querySelector('.content');
+            if (!content) return;
+            content.style.backdropFilter = `blur(${blurPx}px)`;
+            if (blurPx > 2) {
+                content.style.backgroundColor = `rgba(255, 255, 245, ${Math.min(0.9, 0.7 + blurPx * 0.02)})`;
+            } else {
+                content.style.backgroundColor = 'rgba(255, 255, 245, 0.8)';
             }
-            const entry = cashierMap.get(cashier);
-            entry.totalSales += parseFloat(row.amount) || 0;
-            if (row.invoice_no) entry.invoices.add(String(row.invoice_no).trim());
-        });
+        }
 
-        // Build table rows
-        const tbody = document.getElementById('tableBody');
-        tbody.innerHTML = '';
-        let grandTotalSales = 0;
-        let grandTotalCustomers = 0;
+        function updateAllCardsBlur() {
+            const blur = getBlurValue();
+            document.querySelectorAll('#pagesContainer .card').forEach(c => applyBlurToCard(c, blur));
+        }
+        blurSlider.addEventListener('input', updateAllCardsBlur);
 
-        cashierMap.forEach((val, cashier) => {
-            const numCustomers = val.invoices.size;
-            const basket = numCustomers > 0 ? (val.totalSales / numCustomers) : 0;
-            grandTotalSales += val.totalSales;
-            grandTotalCustomers += numCustomers;
+        // ============================================================
+        //  Build a card DOM element
+        // ============================================================
+        function buildCard(descText, oldVal, newVal, style, logoPos, easterSide) {
+            const saveAmount = oldVal - newVal;
 
-            const row = document.createElement('tr');
-            row.innerHTML = `
-                <td>${cashier}</td>
-                <td>${val.totalSales.toFixed(2)}</td>
-                <td>${numCustomers}</td>
-                <td>${basket.toFixed(2)}</td>
+            const card = document.createElement('div');
+            card.className = 'card';
+
+            // style classes
+            if (style === 'logo') {
+                card.classList.add('logo-mode');
+                const pos = logoPos || 'center';
+                let pc = '';
+                switch (pos) {
+                    case 'top-left':
+                        pc = 'logo-top-left';
+                        break;
+                    case 'top-right':
+                        pc = 'logo-top-right';
+                        break;
+                    case 'bottom-left':
+                        pc = 'logo-bottom-left';
+                        break;
+                    case 'bottom-right':
+                        pc = 'logo-bottom-right';
+                        break;
+                    default:
+                        pc = 'logo-center';
+                }
+                card.classList.add(pc);
+                card.classList.remove('easter-side-left', 'easter-side-right');
+            } else {
+                card.classList.add('easter-mode');
+                card.classList.remove('logo-top-left', 'logo-top-right', 'logo-center', 'logo-bottom-left',
+                'logo-bottom-right');
+                const side = easterSide || 'left';
+                if (side === 'left') {
+                    card.classList.add('easter-side-left');
+                    card.classList.remove('easter-side-right');
+                } else {
+                    card.classList.add('easter-side-right');
+                    card.classList.remove('easter-side-left');
+                }
+            }
+
+            const dealLabel = style === 'easter' ? '🐣 EASTER BONANZA 🐰' : 'Hot Deals';
+
+            card.innerHTML = `
+            <div class="content">
+              <div class="header">
+                <div class="brand">XanaPlus</div>
+                <div class="deal">${dealLabel}</div>
+              </div>
+              <div class="desc">${escapeHtml(descText)}</div>
+              <div class="prices">
+                <div class="old">KES ${formatKES(oldVal)}</div>
+                <div class="new">KES ${formatKES(newVal)}</div>
+                <div class="save">✨ Save KES ${formatKES(saveAmount)} ✨</div>
+              </div>
+            </div>
+          `;
+
+            // apply current blur
+            applyBlurToCard(card, getBlurValue());
+
+            // extra easter style tweak
+            if (style === 'easter') {
+                const d = card.querySelector('.desc');
+                if (d) d.style.fontSize = '17px';
+            }
+
+            return card;
+        }
+
+        // ============================================================
+        //  Page management
+        // ============================================================
+        function getTotalPages() {
+            return pagesContainer.querySelectorAll('.page').length;
+        }
+
+        function getCardCount() {
+            return document.querySelectorAll('#pagesContainer .card').length;
+        }
+
+        function updateStats() {
+            const count = getCardCount();
+            importStats.textContent = `${count} cards loaded (${getTotalPages()} pages)`;
+        }
+
+        function rebuildPages() {
+            // Gather all existing cards (preserve order)
+            const allCards = document.querySelectorAll('#pagesContainer .card');
+            const cardData = [];
+            allCards.forEach(c => {
+                // extract data from the card
+                const content = c.querySelector('.content');
+                if (!content) return;
+                const descEl = content.querySelector('.desc');
+                const oldEl = content.querySelector('.old');
+                const newEl = content.querySelector('.new');
+                const desc = descEl ? descEl.textContent.trim() : '';
+                let oldVal = 0,
+                    newVal = 0;
+                if (oldEl) {
+                    const m = oldEl.textContent.match(/[\d,]+/);
+                    if (m) oldVal = parseFloat(m[0].replace(/,/g, '')) || 0;
+                }
+                if (newEl) {
+                    const m = newEl.textContent.match(/[\d,]+/);
+                    if (m) newVal = parseFloat(m[0].replace(/,/g, '')) || 0;
+                }
+                // determine style from classes
+                let style = 'logo';
+                if (c.classList.contains('easter-mode')) style = 'easter';
+                let logoPos = 'center';
+                if (c.classList.contains('logo-top-left')) logoPos = 'top-left';
+                else if (c.classList.contains('logo-top-right')) logoPos = 'top-right';
+                else if (c.classList.contains('logo-bottom-left')) logoPos = 'bottom-left';
+                else if (c.classList.contains('logo-bottom-right')) logoPos = 'bottom-right';
+                let easterSide = 'left';
+                if (c.classList.contains('easter-side-right')) easterSide = 'right';
+
+                cardData.push({ desc, oldVal, newVal, style, logoPos, easterSide });
+            });
+
+            // clear container
+            pagesContainer.innerHTML = '';
+
+            if (cardData.length === 0) {
+                // show empty state
+                const emptyPage = document.createElement('div');
+                emptyPage.className = 'page';
+                emptyPage.innerHTML = `
+              <div class="grid">
+                <div class="grid-empty">
+                  <div>
+                    <div style="font-size:48px; margin-bottom:12px;">📋</div>
+                    <div>No adverts yet.<br />Add manually above or import from Excel.</div>
+                  </div>
+                </div>
+              </div>
             `;
-            tbody.appendChild(row);
-        });
+                pagesContainer.appendChild(emptyPage);
+                updateStats();
+                return;
+            }
 
-        // Totals row
-        const tfoot = document.getElementById('tableFoot');
-        tfoot.innerHTML = `
-            <tr class="table-totals">
-                <td>Total</td>
-                <td>${grandTotalSales.toFixed(2)}</td>
-                <td>${grandTotalCustomers}</td>
-                <td>${(grandTotalCustomers > 0 ? (grandTotalSales / grandTotalCustomers) : 0).toFixed(2)}</td>
-            </tr>
-        `;
+            // chunk into pages
+            const total = cardData.length;
+            const pageCount = Math.ceil(total / MAX_CARDS_PER_PAGE);
 
-        document.getElementById('result').classList.remove('d-none');
-    };
-    reader.readAsArrayBuffer(file);
-}
-</script>
-<!-- Bootstrap Icons (optional for upload icon) -->
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+            for (let p = 0; p < pageCount; p++) {
+                const start = p * MAX_CARDS_PER_PAGE;
+                const end = Math.min(start + MAX_CARDS_PER_PAGE, total);
+                const chunk = cardData.slice(start, end);
+
+                const pageDiv = document.createElement('div');
+                pageDiv.className = 'page';
+                pageDiv.dataset.page = p;
+
+                const grid = document.createElement('div');
+                grid.className = 'grid';
+
+                chunk.forEach(data => {
+                    const card = buildCard(
+                        data.desc,
+                        data.oldVal,
+                        data.newVal,
+                        data.style,
+                        data.logoPos,
+                        data.easterSide
+                    );
+                    grid.appendChild(card);
+                });
+
+                pageDiv.appendChild(grid);
+
+                // page number
+                const num = document.createElement('div');
+                num.className = 'page-number';
+                num.textContent = `Page ${p + 1} of ${pageCount}`;
+                pageDiv.appendChild(num);
+
+                pagesContainer.appendChild(pageDiv);
+            }
+
+            updateStats();
+        }
+
+        // ============================================================
+        //  Add a single card (manual)
+        // ============================================================
+        function addCard() {
+            const descText = descInput.value.trim();
+            const oldVal = parseFloat(oldPriceInput.value);
+            const newVal = parseFloat(newPriceInput.value);
+
+            if (!descText) { alert('Please enter product description'); return; }
+            if (isNaN(oldVal) || isNaN(newVal) || oldVal <= 0 || newVal <= 0) {
+                alert('Please enter valid positive old and new prices');
+                return;
+            }
+            if (newVal >= oldVal) {
+                alert('New price must be lower than old price (Hot Deal!)');
+                return;
+            }
+
+            const style = getCurrentStyle();
+            const logoPos = logoPositionSelect.value;
+            const easterSide = easterSideSelect.value;
+
+            // Get existing cards count
+            const currentCards = document.querySelectorAll('#pagesContainer .card');
+            const count = currentCards.length;
+
+            // If we have cards, we need to rebuild with the new one appended
+            // Gather existing data
+            const cardData = [];
+            currentCards.forEach(c => {
+                const content = c.querySelector('.content');
+                if (!content) return;
+                const descEl = content.querySelector('.desc');
+                const oldEl = content.querySelector('.old');
+                const newEl = content.querySelector('.new');
+                const desc = descEl ? descEl.textContent.trim() : '';
+                let oV = 0,
+                    nV = 0;
+                if (oldEl) { const m = oldEl.textContent.match(/[\d,]+/); if (m) oV = parseFloat(m[0].replace(/,/g, '')) ||
+                        0; }
+                if (newEl) { const m = newEl.textContent.match(/[\d,]+/); if (m) nV = parseFloat(m[0].replace(/,/g, '')) ||
+                        0; }
+                let st = 'logo';
+                if (c.classList.contains('easter-mode')) st = 'easter';
+                let lp = 'center';
+                if (c.classList.contains('logo-top-left')) lp = 'top-left';
+                else if (c.classList.contains('logo-top-right')) lp = 'top-right';
+                else if (c.classList.contains('logo-bottom-left')) lp = 'bottom-left';
+                else if (c.classList.contains('logo-bottom-right')) lp = 'bottom-right';
+                let es = 'left';
+                if (c.classList.contains('easter-side-right')) es = 'right';
+                cardData.push({ desc, oldVal: oV, newVal: nV, style: st, logoPos: lp, easterSide: es });
+            });
+
+            // Add new card data
+            cardData.push({ desc: descText, oldVal, newVal, style, logoPos, easterSide });
+
+            // Rebuild all pages from cardData
+            // We'll use a helper that takes an array and renders it
+            renderCardsFromData(cardData);
+
+            // Reset input fields (optional)
+            // descInput.value = '';
+            // oldPriceInput.value = '';
+            // newPriceInput.value = '';
+        }
+
+        // ============================================================
+        //  Render cards from data array
+        // ============================================================
+        function renderCardsFromData(cardData) {
+            pagesContainer.innerHTML = '';
+
+            if (!cardData || cardData.length === 0) {
+                const emptyPage = document.createElement('div');
+                emptyPage.className = 'page';
+                emptyPage.innerHTML = `
+              <div class="grid">
+                <div class="grid-empty">
+                  <div>
+                    <div style="font-size:48px; margin-bottom:12px;">📋</div>
+                    <div>No adverts yet.<br />Add manually above or import from Excel.</div>
+                  </div>
+                </div>
+              </div>
+            `;
+                pagesContainer.appendChild(emptyPage);
+                updateStats();
+                return;
+            }
+
+            const total = cardData.length;
+            const pageCount = Math.ceil(total / MAX_CARDS_PER_PAGE);
+
+            for (let p = 0; p < pageCount; p++) {
+                const start = p * MAX_CARDS_PER_PAGE;
+                const end = Math.min(start + MAX_CARDS_PER_PAGE, total);
+                const chunk = cardData.slice(start, end);
+
+                const pageDiv = document.createElement('div');
+                pageDiv.className = 'page';
+                pageDiv.dataset.page = p;
+
+                const grid = document.createElement('div');
+                grid.className = 'grid';
+
+                chunk.forEach(data => {
+                    const card = buildCard(
+                        data.desc,
+                        data.oldVal,
+                        data.newVal,
+                        data.style,
+                        data.logoPos,
+                        data.easterSide
+                    );
+                    grid.appendChild(card);
+                });
+
+                pageDiv.appendChild(grid);
+
+                const num = document.createElement('div');
+                num.className = 'page-number';
+                num.textContent = `Page ${p + 1} of ${pageCount}`;
+                pageDiv.appendChild(num);
+
+                pagesContainer.appendChild(pageDiv);
+            }
+
+            updateStats();
+        }
+
+        // ============================================================
+        //  Clear all
+        // ============================================================
+        function clearAll() {
+            if (getCardCount() === 0) return;
+            if (!confirm('Remove all adverts?')) return;
+            pagesContainer.innerHTML = '';
+            const emptyPage = document.createElement('div');
+            emptyPage.className = 'page';
+            emptyPage.innerHTML = `
+            <div class="grid">
+              <div class="grid-empty">
+                <div>
+                  <div style="font-size:48px; margin-bottom:12px;">📋</div>
+                  <div>No adverts yet.<br />Add manually above or import from Excel.</div>
+                </div>
+              </div>
+            </div>
+          `;
+            pagesContainer.appendChild(emptyPage);
+            updateStats();
+        }
+
+        // ============================================================
+        //  Excel Import
+        // ============================================================
+        function importExcel() {
+            const file = excelFileInput.files[0];
+            if (!file) {
+                alert('Please select an Excel file (.xlsx or .xls)');
+                return;
+            }
+
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                try {
+                    const data = new Uint8Array(e.target.result);
+                    const workbook = XLSX.read(data, { type: 'array' });
+                    const firstSheet = workbook.Sheets[workbook.SheetNames[0]];
+                    const json = XLSX.utils.sheet_to_json(firstSheet, { defval: '' });
+
+                    if (!json || json.length === 0) {
+                        alert('The Excel file appears to be empty. Please check the data.');
+                        return;
+                    }
+
+                    // Normalize column names: look for Description, was, Now (case-insensitive)
+                    const headers = Object.keys(json[0]);
+                    const findCol = (variants) => {
+                        for (const h of headers) {
+                            const hLower = h.trim().toLowerCase();
+                            for (const v of variants) {
+                                if (hLower === v.toLowerCase()) return h;
+                            }
+                        }
+                        return null;
+                    };
+
+                    const descCol = findCol(['Description', 'description', 'Product', 'product', 'Item', 'item']);
+                    const wasCol = findCol(['was', 'Was', 'Old', 'old', 'Old Price', 'old price', 'Original', 'original']);
+                    const nowCol = findCol(['Now', 'now', 'New', 'new', 'New Price', 'new price', 'Current', 'current']);
+
+                    if (!descCol) {
+                        alert('Could not find a "Description" column in the Excel file.\n\nAvailable columns: ' + headers
+                            .join(', '));
+                        return;
+                    }
+                    if (!wasCol) {
+                        alert('Could not find a "was" (old price) column.\n\nAvailable columns: ' + headers.join(
+                        ', '));
+                        return;
+                    }
+                    if (!nowCol) {
+                        alert('Could not find a "Now" (new price) column.\n\nAvailable columns: ' + headers.join(
+                        ', '));
+                        return;
+                    }
+
+                    // Parse data
+                    const style = getCurrentStyle();
+                    const logoPos = logoPositionSelect.value;
+                    const easterSide = easterSideSelect.value;
+
+                    const cardData = [];
+                    let skipped = 0;
+
+                    for (const row of json) {
+                        const desc = String(row[descCol] || '').trim();
+                        const wasStr = String(row[wasCol] || '').replace(/[^0-9.]/g, '');
+                        const nowStr = String(row[nowCol] || '').replace(/[^0-9.]/g, '');
+
+                        if (!desc) { skipped++; continue; }
+                        const wasVal = parseFloat(wasStr);
+                        const nowVal = parseFloat(nowStr);
+                        if (isNaN(wasVal) || isNaN(nowVal) || wasVal <= 0 || nowVal <= 0) {
+                            skipped++;
+                            continue;
+                        }
+                        if (nowVal >= wasVal) {
+                            skipped++;
+                            continue;
+                        }
+
+                        cardData.push({
+                            desc,
+                            oldVal: wasVal,
+                            newVal: nowVal,
+                            style: style,
+                            logoPos: logoPos,
+                            easterSide: easterSide
+                        });
+                    }
+
+                    if (cardData.length === 0) {
+                        alert(
+                            `No valid rows found. Please ensure columns have positive numbers with "was" > "Now".\n\n${skipped} rows skipped.`
+                            );
+                        return;
+                    }
+
+                    // Check if user wants to replace or append
+                    const existing = getCardCount();
+                    let finalData = [];
+                    if (existing > 0) {
+                        // Gather existing
+                        const existingData = [];
+                        document.querySelectorAll('#pagesContainer .card').forEach(c => {
+                            const content = c.querySelector('.content');
+                            if (!content) return;
+                            const descEl = content.querySelector('.desc');
+                            const oldEl = content.querySelector('.old');
+                            const newEl = content.querySelector('.new');
+                            const desc = descEl ? descEl.textContent.trim() : '';
+                            let oV = 0,
+                                nV = 0;
+                            if (oldEl) { const m = oldEl.textContent.match(/[\d,]+/); if (m) oV = parseFloat(m[0]
+                                    .replace(/,/g, '')) || 0; }
+                            if (newEl) { const m = newEl.textContent.match(/[\d,]+/); if (m) nV = parseFloat(m[0]
+                                    .replace(/,/g, '')) || 0; }
+                            let st = 'logo';
+                            if (c.classList.contains('easter-mode')) st = 'easter';
+                            let lp = 'center';
+                            if (c.classList.contains('logo-top-left')) lp = 'top-left';
+                            else if (c.classList.contains('logo-top-right')) lp = 'top-right';
+                            else if (c.classList.contains('logo-bottom-left')) lp = 'bottom-left';
+                            else if (c.classList.contains('logo-bottom-right')) lp = 'bottom-right';
+                            let es = 'left';
+                            if (c.classList.contains('easter-side-right')) es = 'right';
+                            existingData.push({ desc, oldVal: oV, newVal: nV, style: st, logoPos: lp,
+                            easterSide: es });
+                        });
+                        // Ask user: replace or append?
+                        const action = confirm(
+                            `You have ${existing} existing card(s).\n\nClick "OK" to REPLACE them with the imported data (${cardData.length} cards).\nClick "Cancel" to APPEND the imported data (total ${existing + cardData.length} cards).`
+                            );
+                        if (action) {
+                            // Replace
+                            finalData = cardData;
+                        } else {
+                            // Append
+                            finalData = existingData.concat(cardData);
+                        }
+                    } else {
+                        finalData = cardData;
+                    }
+
+                    renderCardsFromData(finalData);
+                    alert(
+                        `✅ Successfully imported ${cardData.length} card(s).${skipped > 0 ? `\n⚠️ ${skipped} row(s) were skipped due to invalid data.` : ''}`
+                        );
+
+                } catch (err) {
+                    console.error(err);
+                    alert('Error reading Excel file: ' + err.message);
+                }
+            };
+            reader.readAsArrayBuffer(file);
+        }
+
+        // ============================================================
+        //  PDF Export – all pages as one PDF with multiple pages
+        // ============================================================
+        async function downloadPDF() {
+            const pages = document.querySelectorAll('#pagesContainer .page');
+            if (!pages || pages.length === 0 || (pages.length === 1 && pages[0].querySelectorAll('.card').length === 0)) {
+                alert('No adverts to export. Please add at least one card.');
+                return;
+            }
+
+            const { jsPDF } = window.jspdf;
+            const pdf = new jsPDF('p', 'mm', 'a4');
+
+            for (let i = 0; i < pages.length; i++) {
+                const pageEl = pages[i];
+                try {
+                    const canvas = await html2canvas(pageEl, {
+                        scale: 2.5,
+                        backgroundColor: '#ffffff',
+                        useCORS: true,
+                        logging: false,
+                        allowTaint: true
+                    });
+                    const imgData = canvas.toDataURL('image/png');
+                    const pdfWidth = 210;
+                    const pdfHeight = (canvas.height * pdfWidth) / canvas.width;
+
+                    if (i > 0) pdf.addPage();
+                    pdf.addImage(imgData, 'PNG', 0, 0, pdfWidth, pdfHeight);
+                } catch (err) {
+                    console.error('Error rendering page', i, err);
+                    alert('Error generating PDF for page ' + (i + 1));
+                    return;
+                }
+            }
+
+            pdf.save('XanaPlus_HotDeals.pdf');
+        }
+
+        // ============================================================
+        //  Export individual pages as separate PDFs
+        // ============================================================
+        async function downloadIndividualPDFs() {
+            const pages = document.querySelectorAll('#pagesContainer .page');
+            if (!pages || pages.length === 0 || (pages.length === 1 && pages[0].querySelectorAll('.card').length === 0)) {
+                alert('No adverts to export. Please add at least one card.');
+                return;
+            }
+
+            const { jsPDF } = window.jspdf;
+
+            for (let i = 0; i < pages.length; i++) {
+                const pageEl = pages[i];
+                try {
+                    const canvas = await html2canvas(pageEl, {
+                        scale: 2.5,
+                        backgroundColor: '#ffffff',
+                        useCORS: true,
+                        logging: false,
+                        allowTaint: true
+                    });
+                    const imgData = canvas.toDataURL('image/png');
+                    const pdf = new jsPDF('p', 'mm', 'a4');
+                    const pdfWidth = 210;
+                    const pdfHeight = (canvas.height * pdfWidth) / canvas.width;
+                    pdf.addImage(imgData, 'PNG', 0, 0, pdfWidth, pdfHeight);
+                    pdf.save(`XanaPlus_Page_${i + 1}_of_${pages.length}.pdf`);
+                } catch (err) {
+                    console.error('Error rendering page', i, err);
+                    alert('Error generating PDF for page ' + (i + 1));
+                    return;
+                }
+            }
+
+            alert(`✅ Exported ${pages.length} individual PDF(s).`);
+        }
+
+        // ============================================================
+        //  Event bindings
+        // ============================================================
+        addBtn.addEventListener('click', addCard);
+        clearBtn.addEventListener('click', clearAll);
+        importExcelBtn.addEventListener('click', importExcel);
+
+        // PDF buttons – we'll add them dynamically near the page container
+        function addPDFControls() {
+            const container = document.createElement('div');
+            container.style.cssText =
+                'max-width:210mm; margin:16px auto 0; display:flex; gap:10px; flex-wrap:wrap; justify-content:center;';
+
+            const btnAll = document.createElement('button');
+            btnAll.textContent = '📄 Download PDF (All Pages)';
+            btnAll.className = 'btn-secondary';
+            btnAll.addEventListener('click', downloadPDF);
+
+            const btnIndividual = document.createElement('button');
+            btnIndividual.textContent = '📄 Download Individual PDFs';
+            btnIndividual.className = 'btn-purple';
+            btnIndividual.addEventListener('click', downloadIndividualPDFs);
+
+            container.appendChild(btnAll);
+            container.appendChild(btnIndividual);
+
+            // Insert after pages container
+            pagesContainer.parentNode.insertBefore(container, pagesContainer.nextSibling);
+        }
+        addPDFControls();
+
+        // ============================================================
+        //  Init – show empty state
+        // ============================================================
+        function initEmpty() {
+            const emptyPage = document.createElement('div');
+            emptyPage.className = 'page';
+            emptyPage.innerHTML = `
+            <div class="grid">
+              <div class="grid-empty">
+                <div>
+                  <div style="font-size:48px; margin-bottom:12px;">📋</div>
+                  <div>No adverts yet.<br />Add manually above or import from Excel.</div>
+                </div>
+              </div>
+            </div>
+          `;
+            pagesContainer.appendChild(emptyPage);
+            updateStats();
+        }
+        initEmpty();
+
+        // Demo cards after a short delay (optional)
+        setTimeout(() => {
+            const count = getCardCount();
+            if (count === 0) {
+                // Add a couple demo cards to show off the tool
+                const style = 'easter';
+                const cardData = [{
+                    desc: 'XanaPlus Organic Greens',
+                    oldVal: 3499,
+                    newVal: 1999,
+                    style: 'easter',
+                    logoPos: 'center',
+                    easterSide: 'right'
+                }, {
+                    desc: 'XanaPlus Energy Capsules',
+                    oldVal: 4500,
+                    newVal: 2999,
+                    style: 'logo',
+                    logoPos: 'top-right',
+                    easterSide: 'left'
+                }];
+                renderCardsFromData(cardData);
+            }
+        }, 300);
+
+        console.log('🐣 XanaPlus Advert Studio loaded.');
+        console.log('📊 Import Excel with columns: Description, was, Now');
+        console.log('📄 Max 6 cards per A4 page. Multi-page PDF export ready.');
+    </script>
 </body>
 </html>
