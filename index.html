@@ -357,6 +357,7 @@
             align-self: center;
             width: 100%;
             margin-bottom: 6px;
+            flex-shrink: 0;
         }
 
         .brand {
@@ -379,18 +380,20 @@
 
         /* description area */
         .desc {
-            flex: 1;
+            flex: 1 1 auto;
             font-size: 18px;
             font-weight: 800;
             text-align: center;
             display: flex;
             align-items: center;
             justify-content: center;
-            margin: 8px 0;
+            margin: 6px 0;
             background: rgba(255, 255, 240, 0.8);
             border-radius: 28px;
-            padding: 8px 5px;
+            padding: 6px 5px;
             word-break: break-word;
+            min-height: 0;
+            overflow: hidden;
         }
 
         /* prices area */
@@ -398,8 +401,9 @@
             text-align: center;
             background: rgba(255, 255, 245, 0.9);
             border-radius: 24px;
-            padding: 8px 6px;
+            padding: 8px 6px 6px 6px;
             margin-top: auto;
+            flex-shrink: 0;
         }
 
         .old {
@@ -425,6 +429,27 @@
             border-radius: 40px;
             margin-top: 5px;
             color: #2c2b26;
+        }
+
+        /* ----- FOOTER: Offer ends date ----- */
+        .offer-footer {
+            font-size: 10px;
+            color: #888;
+            border-top: 1px solid rgba(0, 0, 0, 0.08);
+            padding-top: 4px;
+            margin-top: 5px;
+            text-align: center;
+            font-weight: 600;
+            letter-spacing: 0.3px;
+            line-height: 1.3;
+        }
+        .offer-footer span {
+            background: rgba(244, 183, 64, 0.15);
+            padding: 0 8px;
+            border-radius: 12px;
+        }
+        .offer-footer .date-highlight {
+            color: #b7410e;
         }
 
         /* Easter specific decorative touches */
@@ -536,6 +561,16 @@
             display: inline-block;
         }
 
+        /* Responsive tweaks for footer */
+        @media (max-width: 800px) {
+            .offer-footer {
+                font-size: 9px;
+            }
+            .offer-footer span {
+                padding: 0 5px;
+            }
+        }
+
         @media print {
             body {
                 background: white;
@@ -568,6 +603,10 @@
             }
             .pages-container {
                 gap: 0;
+            }
+            .offer-footer {
+                -webkit-print-color-adjust: exact;
+                print-color-adjust: exact;
             }
         }
 
@@ -656,6 +695,13 @@
             <small style="display:block; font-size:11px;">Drag to blur card content background (stylish glass effect)</small>
         </div>
 
+        <!-- NEW: Offer Ends Date -->
+        <div class="control-group" style="min-width:180px;">
+            <label>📅 Offer Ends Date</label>
+            <input id="offerEndDate" type="text" placeholder="e.g. 30th April 2026" value="30th April 2026" />
+            <small style="display:block; font-size:11px; color:#888; margin-top:3px;">Shown on all card footers</small>
+        </div>
+
         <div class="control-group" style="flex: 0 0 auto; display: flex; gap: 8px; flex-wrap: wrap;">
             <button id="addBtn">+ Add Advert</button>
             <button id="clearBtn" class="btn-danger">🗑️ Clear All</button>
@@ -695,9 +741,13 @@
         const importExcelBtn = document.getElementById('importExcelBtn');
         const excelFileInput = document.getElementById('excelFileInput');
         const importStats = document.getElementById('importStats');
+        const offerEndDateInput = document.getElementById('offerEndDate');
 
         let totalCards = 0;
         const MAX_CARDS_PER_PAGE = 6;
+
+        // Global offer end date (default)
+        let offerEndDate = offerEndDateInput.value.trim() || '30th April 2026';
 
         // ============================================================
         //  Helpers
@@ -763,8 +813,9 @@
         // ============================================================
         //  Build a card DOM element
         // ============================================================
-        function buildCard(descText, oldVal, newVal, style, logoPos, easterSide) {
+        function buildCard(descText, oldVal, newVal, style, logoPos, easterSide, dateStr) {
             const saveAmount = oldVal - newVal;
+            const displayDate = dateStr || offerEndDate || '';
 
             const card = document.createElement('div');
             card.className = 'card';
@@ -795,7 +846,7 @@
             } else {
                 card.classList.add('easter-mode');
                 card.classList.remove('logo-top-left', 'logo-top-right', 'logo-center', 'logo-bottom-left',
-                'logo-bottom-right');
+                    'logo-bottom-right');
                 const side = easterSide || 'left';
                 if (side === 'left') {
                     card.classList.add('easter-side-left');
@@ -808,6 +859,16 @@
 
             const dealLabel = style === 'easter' ? '🐣 EASTER BONANZA 🐰' : 'Hot Deals';
 
+            // Build footer HTML only if date is provided
+            let footerHtml = '';
+            if (displayDate) {
+                footerHtml = `
+              <div class="offer-footer">
+                <span>🎯 Offer ends: <span class="date-highlight">${escapeHtml(displayDate)}</span></span>
+              </div>
+            `;
+            }
+
             card.innerHTML = `
             <div class="content">
               <div class="header">
@@ -819,6 +880,7 @@
                 <div class="old">KES ${formatKES(oldVal)}</div>
                 <div class="new">KES ${formatKES(newVal)}</div>
                 <div class="save">✨ Save KES ${formatKES(saveAmount)} ✨</div>
+                ${footerHtml}
               </div>
             </div>
           `;
@@ -851,47 +913,10 @@
             importStats.textContent = `${count} cards loaded (${getTotalPages()} pages)`;
         }
 
-        function rebuildPages() {
-            // Gather all existing cards (preserve order)
-            const allCards = document.querySelectorAll('#pagesContainer .card');
-            const cardData = [];
-            allCards.forEach(c => {
-                // extract data from the card
-                const content = c.querySelector('.content');
-                if (!content) return;
-                const descEl = content.querySelector('.desc');
-                const oldEl = content.querySelector('.old');
-                const newEl = content.querySelector('.new');
-                const desc = descEl ? descEl.textContent.trim() : '';
-                let oldVal = 0,
-                    newVal = 0;
-                if (oldEl) {
-                    const m = oldEl.textContent.match(/[\d,]+/);
-                    if (m) oldVal = parseFloat(m[0].replace(/,/g, '')) || 0;
-                }
-                if (newEl) {
-                    const m = newEl.textContent.match(/[\d,]+/);
-                    if (m) newVal = parseFloat(m[0].replace(/,/g, '')) || 0;
-                }
-                // determine style from classes
-                let style = 'logo';
-                if (c.classList.contains('easter-mode')) style = 'easter';
-                let logoPos = 'center';
-                if (c.classList.contains('logo-top-left')) logoPos = 'top-left';
-                else if (c.classList.contains('logo-top-right')) logoPos = 'top-right';
-                else if (c.classList.contains('logo-bottom-left')) logoPos = 'bottom-left';
-                else if (c.classList.contains('logo-bottom-right')) logoPos = 'bottom-right';
-                let easterSide = 'left';
-                if (c.classList.contains('easter-side-right')) easterSide = 'right';
-
-                cardData.push({ desc, oldVal, newVal, style, logoPos, easterSide });
-            });
-
-            // clear container
+        function renderCardsFromData(cardData) {
             pagesContainer.innerHTML = '';
 
-            if (cardData.length === 0) {
-                // show empty state
+            if (!cardData || cardData.length === 0) {
                 const emptyPage = document.createElement('div');
                 emptyPage.className = 'page';
                 emptyPage.innerHTML = `
@@ -909,9 +934,9 @@
                 return;
             }
 
-            // chunk into pages
             const total = cardData.length;
             const pageCount = Math.ceil(total / MAX_CARDS_PER_PAGE);
+            const currentDate = offerEndDate;
 
             for (let p = 0; p < pageCount; p++) {
                 const start = p * MAX_CARDS_PER_PAGE;
@@ -932,14 +957,14 @@
                         data.newVal,
                         data.style,
                         data.logoPos,
-                        data.easterSide
+                        data.easterSide,
+                        currentDate
                     );
                     grid.appendChild(card);
                 });
 
                 pageDiv.appendChild(grid);
 
-                // page number
                 const num = document.createElement('div');
                 num.className = 'page-number';
                 num.textContent = `Page ${p + 1} of ${pageCount}`;
@@ -949,6 +974,46 @@
             }
 
             updateStats();
+        }
+
+        // ============================================================
+        //  Get all card data from current DOM
+        // ============================================================
+        function getAllCardDataFromDOM() {
+            const cardData = [];
+            document.querySelectorAll('#pagesContainer .card').forEach(c => {
+                const content = c.querySelector('.content');
+                if (!content) return;
+                const descEl = content.querySelector('.desc');
+                const oldEl = content.querySelector('.old');
+                const newEl = content.querySelector('.new');
+                const desc = descEl ? descEl.textContent.trim() : '';
+                let oV = 0,
+                    nV = 0;
+                if (oldEl) { const m = oldEl.textContent.match(/[\d,]+/); if (m) oV = parseFloat(m[0].replace(/,/g,
+                        '')) || 0; }
+                if (newEl) { const m = newEl.textContent.match(/[\d,]+/); if (m) nV = parseFloat(m[0].replace(/,/g,
+                        '')) || 0; }
+                let st = 'logo';
+                if (c.classList.contains('easter-mode')) st = 'easter';
+                let lp = 'center';
+                if (c.classList.contains('logo-top-left')) lp = 'top-left';
+                else if (c.classList.contains('logo-top-right')) lp = 'top-right';
+                else if (c.classList.contains('logo-bottom-left')) lp = 'bottom-left';
+                else if (c.classList.contains('logo-bottom-right')) lp = 'bottom-right';
+                let es = 'left';
+                if (c.classList.contains('easter-side-right')) es = 'right';
+                cardData.push({ desc, oldVal: oV, newVal: nV, style: st, logoPos: lp, easterSide: es });
+            });
+            return cardData;
+        }
+
+        // ============================================================
+        //  Update all cards with new date (re-render)
+        // ============================================================
+        function refreshAllCardsWithDate() {
+            const cardData = getAllCardDataFromDOM();
+            renderCardsFromData(cardData);
         }
 
         // ============================================================
@@ -973,113 +1038,14 @@
             const logoPos = logoPositionSelect.value;
             const easterSide = easterSideSelect.value;
 
-            // Get existing cards count
-            const currentCards = document.querySelectorAll('#pagesContainer .card');
-            const count = currentCards.length;
-
-            // If we have cards, we need to rebuild with the new one appended
-            // Gather existing data
-            const cardData = [];
-            currentCards.forEach(c => {
-                const content = c.querySelector('.content');
-                if (!content) return;
-                const descEl = content.querySelector('.desc');
-                const oldEl = content.querySelector('.old');
-                const newEl = content.querySelector('.new');
-                const desc = descEl ? descEl.textContent.trim() : '';
-                let oV = 0,
-                    nV = 0;
-                if (oldEl) { const m = oldEl.textContent.match(/[\d,]+/); if (m) oV = parseFloat(m[0].replace(/,/g, '')) ||
-                        0; }
-                if (newEl) { const m = newEl.textContent.match(/[\d,]+/); if (m) nV = parseFloat(m[0].replace(/,/g, '')) ||
-                        0; }
-                let st = 'logo';
-                if (c.classList.contains('easter-mode')) st = 'easter';
-                let lp = 'center';
-                if (c.classList.contains('logo-top-left')) lp = 'top-left';
-                else if (c.classList.contains('logo-top-right')) lp = 'top-right';
-                else if (c.classList.contains('logo-bottom-left')) lp = 'bottom-left';
-                else if (c.classList.contains('logo-bottom-right')) lp = 'bottom-right';
-                let es = 'left';
-                if (c.classList.contains('easter-side-right')) es = 'right';
-                cardData.push({ desc, oldVal: oV, newVal: nV, style: st, logoPos: lp, easterSide: es });
-            });
+            // Get existing card data
+            const cardData = getAllCardDataFromDOM();
 
             // Add new card data
             cardData.push({ desc: descText, oldVal, newVal, style, logoPos, easterSide });
 
-            // Rebuild all pages from cardData
-            // We'll use a helper that takes an array and renders it
+            // Re-render all
             renderCardsFromData(cardData);
-
-            // Reset input fields (optional)
-            // descInput.value = '';
-            // oldPriceInput.value = '';
-            // newPriceInput.value = '';
-        }
-
-        // ============================================================
-        //  Render cards from data array
-        // ============================================================
-        function renderCardsFromData(cardData) {
-            pagesContainer.innerHTML = '';
-
-            if (!cardData || cardData.length === 0) {
-                const emptyPage = document.createElement('div');
-                emptyPage.className = 'page';
-                emptyPage.innerHTML = `
-              <div class="grid">
-                <div class="grid-empty">
-                  <div>
-                    <div style="font-size:48px; margin-bottom:12px;">📋</div>
-                    <div>No adverts yet.<br />Add manually above or import from Excel.</div>
-                  </div>
-                </div>
-              </div>
-            `;
-                pagesContainer.appendChild(emptyPage);
-                updateStats();
-                return;
-            }
-
-            const total = cardData.length;
-            const pageCount = Math.ceil(total / MAX_CARDS_PER_PAGE);
-
-            for (let p = 0; p < pageCount; p++) {
-                const start = p * MAX_CARDS_PER_PAGE;
-                const end = Math.min(start + MAX_CARDS_PER_PAGE, total);
-                const chunk = cardData.slice(start, end);
-
-                const pageDiv = document.createElement('div');
-                pageDiv.className = 'page';
-                pageDiv.dataset.page = p;
-
-                const grid = document.createElement('div');
-                grid.className = 'grid';
-
-                chunk.forEach(data => {
-                    const card = buildCard(
-                        data.desc,
-                        data.oldVal,
-                        data.newVal,
-                        data.style,
-                        data.logoPos,
-                        data.easterSide
-                    );
-                    grid.appendChild(card);
-                });
-
-                pageDiv.appendChild(grid);
-
-                const num = document.createElement('div');
-                num.className = 'page-number';
-                num.textContent = `Page ${p + 1} of ${pageCount}`;
-                pageDiv.appendChild(num);
-
-                pagesContainer.appendChild(pageDiv);
-            }
-
-            updateStats();
         }
 
         // ============================================================
@@ -1088,21 +1054,7 @@
         function clearAll() {
             if (getCardCount() === 0) return;
             if (!confirm('Remove all adverts?')) return;
-            pagesContainer.innerHTML = '';
-            const emptyPage = document.createElement('div');
-            emptyPage.className = 'page';
-            emptyPage.innerHTML = `
-            <div class="grid">
-              <div class="grid-empty">
-                <div>
-                  <div style="font-size:48px; margin-bottom:12px;">📋</div>
-                  <div>No adverts yet.<br />Add manually above or import from Excel.</div>
-                </div>
-              </div>
-            </div>
-          `;
-            pagesContainer.appendChild(emptyPage);
-            updateStats();
+            renderCardsFromData([]);
         }
 
         // ============================================================
@@ -1128,7 +1080,6 @@
                         return;
                     }
 
-                    // Normalize column names: look for Description, was, Now (case-insensitive)
                     const headers = Object.keys(json[0]);
                     const findCol = (variants) => {
                         for (const h of headers) {
@@ -1141,26 +1092,29 @@
                     };
 
                     const descCol = findCol(['Description', 'description', 'Product', 'product', 'Item', 'item']);
-                    const wasCol = findCol(['was', 'Was', 'Old', 'old', 'Old Price', 'old price', 'Original', 'original']);
-                    const nowCol = findCol(['Now', 'now', 'New', 'new', 'New Price', 'new price', 'Current', 'current']);
+                    const wasCol = findCol(['was', 'Was', 'Old', 'old', 'Old Price', 'old price', 'Original',
+                        'original'
+                    ]);
+                    const nowCol = findCol(['Now', 'now', 'New', 'new', 'New Price', 'new price', 'Current',
+                        'current'
+                    ]);
 
                     if (!descCol) {
-                        alert('Could not find a "Description" column in the Excel file.\n\nAvailable columns: ' + headers
-                            .join(', '));
+                        alert('Could not find a "Description" column in the Excel file.\n\nAvailable columns: ' +
+                            headers.join(', '));
                         return;
                     }
                     if (!wasCol) {
                         alert('Could not find a "was" (old price) column.\n\nAvailable columns: ' + headers.join(
-                        ', '));
+                            ', '));
                         return;
                     }
                     if (!nowCol) {
                         alert('Could not find a "Now" (new price) column.\n\nAvailable columns: ' + headers.join(
-                        ', '));
+                            ', '));
                         return;
                     }
 
-                    // Parse data
                     const style = getCurrentStyle();
                     const logoPos = logoPositionSelect.value;
                     const easterSide = easterSideSelect.value;
@@ -1202,46 +1156,16 @@
                         return;
                     }
 
-                    // Check if user wants to replace or append
                     const existing = getCardCount();
                     let finalData = [];
                     if (existing > 0) {
-                        // Gather existing
-                        const existingData = [];
-                        document.querySelectorAll('#pagesContainer .card').forEach(c => {
-                            const content = c.querySelector('.content');
-                            if (!content) return;
-                            const descEl = content.querySelector('.desc');
-                            const oldEl = content.querySelector('.old');
-                            const newEl = content.querySelector('.new');
-                            const desc = descEl ? descEl.textContent.trim() : '';
-                            let oV = 0,
-                                nV = 0;
-                            if (oldEl) { const m = oldEl.textContent.match(/[\d,]+/); if (m) oV = parseFloat(m[0]
-                                    .replace(/,/g, '')) || 0; }
-                            if (newEl) { const m = newEl.textContent.match(/[\d,]+/); if (m) nV = parseFloat(m[0]
-                                    .replace(/,/g, '')) || 0; }
-                            let st = 'logo';
-                            if (c.classList.contains('easter-mode')) st = 'easter';
-                            let lp = 'center';
-                            if (c.classList.contains('logo-top-left')) lp = 'top-left';
-                            else if (c.classList.contains('logo-top-right')) lp = 'top-right';
-                            else if (c.classList.contains('logo-bottom-left')) lp = 'bottom-left';
-                            else if (c.classList.contains('logo-bottom-right')) lp = 'bottom-right';
-                            let es = 'left';
-                            if (c.classList.contains('easter-side-right')) es = 'right';
-                            existingData.push({ desc, oldVal: oV, newVal: nV, style: st, logoPos: lp,
-                            easterSide: es });
-                        });
-                        // Ask user: replace or append?
+                        const existingData = getAllCardDataFromDOM();
                         const action = confirm(
                             `You have ${existing} existing card(s).\n\nClick "OK" to REPLACE them with the imported data (${cardData.length} cards).\nClick "Cancel" to APPEND the imported data (total ${existing + cardData.length} cards).`
                             );
                         if (action) {
-                            // Replace
                             finalData = cardData;
                         } else {
-                            // Append
                             finalData = existingData.concat(cardData);
                         }
                     } else {
@@ -1345,7 +1269,18 @@
         clearBtn.addEventListener('click', clearAll);
         importExcelBtn.addEventListener('click', importExcel);
 
-        // PDF buttons – we'll add them dynamically near the page container
+        // Date input: update global and refresh all cards
+        offerEndDateInput.addEventListener('input', function() {
+            const val = this.value.trim();
+            offerEndDate = val || '';
+            refreshAllCardsWithDate();
+        });
+
+        // Also re-render when blur slider changes (already does)
+        // Also re-render when style/position changes? The user would add new cards with those settings.
+        // But if they change the date, we refresh.
+
+        // PDF buttons
         function addPDFControls() {
             const container = document.createElement('div');
             container.style.cssText =
@@ -1364,7 +1299,6 @@
             container.appendChild(btnAll);
             container.appendChild(btnIndividual);
 
-            // Insert after pages container
             pagesContainer.parentNode.insertBefore(container, pagesContainer.nextSibling);
         }
         addPDFControls();
@@ -1373,29 +1307,14 @@
         //  Init – show empty state
         // ============================================================
         function initEmpty() {
-            const emptyPage = document.createElement('div');
-            emptyPage.className = 'page';
-            emptyPage.innerHTML = `
-            <div class="grid">
-              <div class="grid-empty">
-                <div>
-                  <div style="font-size:48px; margin-bottom:12px;">📋</div>
-                  <div>No adverts yet.<br />Add manually above or import from Excel.</div>
-                </div>
-              </div>
-            </div>
-          `;
-            pagesContainer.appendChild(emptyPage);
-            updateStats();
+            renderCardsFromData([]);
         }
         initEmpty();
 
-        // Demo cards after a short delay (optional)
+        // Demo cards after a short delay
         setTimeout(() => {
             const count = getCardCount();
             if (count === 0) {
-                // Add a couple demo cards to show off the tool
-                const style = 'easter';
                 const cardData = [{
                     desc: 'XanaPlus Organic Greens',
                     oldVal: 3499,
@@ -1416,6 +1335,7 @@
         }, 300);
 
         console.log('🐣 XanaPlus Advert Studio loaded.');
+        console.log('📅 Offer end date footer: update the date field to refresh all cards.');
         console.log('📊 Import Excel with columns: Description, was, Now');
         console.log('📄 Max 6 cards per A4 page. Multi-page PDF export ready.');
     </script>
